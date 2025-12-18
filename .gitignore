@@ -1,0 +1,26 @@
+# IDEs
+.idea/
+.vscode/
+*.iml
+.DS_Store
+
+# Java
+**/target/
+*.class
+**/.mvn/
+**/mvnw
+**/mvnw.cmd
+
+# Node
+**/node_modules/
+**/dist/
+**/coverage/
+**/.env
+**/.env.local
+
+# Docker
+.docker/
+
+# Logs
+*.log
+**/logs/

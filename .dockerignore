@@ -1,0 +1,31 @@
+# Version Control
+.git
+.gitignore
+.dockerignore
+
+# Documentation & Config
+README.md
+docker-compose.yml
+task.md
+implementation_plan.md
+walkthrough.md
+
+# Logs
+*.log
+**/logs
+
+# IDEs
+.idea
+.vscode
+*.iml
+
+# Java Build Artifacts
+**/target
+**/.mvn
+**/mvnw
+**/mvnw.cmd
+
+# Node Build Artifacts
+**/node_modules
+**/dist
+**/coverage
