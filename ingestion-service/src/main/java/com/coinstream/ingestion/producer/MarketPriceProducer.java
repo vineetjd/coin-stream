@@ -1,22 +1,31 @@
 package com.coinstream.ingestion.producer;
 
 import com.coinstream.ingestion.model.MarketPrice;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import com.coinstream.ingestion.port.out.PricePublisherPort;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
-@Slf4j
-public class MarketPriceProducer {
+public class MarketPriceProducer implements PricePublisherPort {
+
+    private static final Logger log = LoggerFactory.getLogger(MarketPriceProducer.class);
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
-    private static final String TOPIC = "market.prices";
+    
+    @Value("${kafka.topic.prices}")
+    private String topic;
 
-    @SuppressWarnings("null")
+    public MarketPriceProducer(KafkaTemplate<String, Object> kafkaTemplate) {
+        this.kafkaTemplate = kafkaTemplate;
+    }
+
+    @Override
+
     public void sendPrice(MarketPrice marketPrice) {
         log.info("Sending price: {}", marketPrice);
-        kafkaTemplate.send(TOPIC, marketPrice.getSymbol(), marketPrice);
+        kafkaTemplate.send(topic, marketPrice.symbol(), marketPrice);
     }
 }

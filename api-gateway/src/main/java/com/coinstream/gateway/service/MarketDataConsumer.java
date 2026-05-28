@@ -1,28 +1,32 @@
 package com.coinstream.gateway.service;
 
-import com.coinstream.ingestion.model.MarketPrice;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import com.coinstream.gateway.model.MarketPrice;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.lang.NonNull;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
+
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
-@Slf4j
 public class MarketDataConsumer {
 
-    private final SimpMessagingTemplate messagingTemplate;
+    private static final Logger log = LoggerFactory.getLogger(MarketDataConsumer.class);
+
+    private final WebSocketBroadcastService broadcastService;
     private final com.fasterxml.jackson.databind.ObjectMapper objectMapper;
 
-    @KafkaListener(topics = "market.prices", groupId = "gateway-group")
-    public void consume(@NonNull String message) {
+    public MarketDataConsumer(WebSocketBroadcastService broadcastService, com.fasterxml.jackson.databind.ObjectMapper objectMapper) {
+        this.broadcastService = broadcastService;
+        this.objectMapper = objectMapper;
+    }
+
+    @KafkaListener(topics = "${kafka.topic.prices}", groupId = "gateway-group")
+    public void consume(String message) {
         try {
             MarketPrice price = objectMapper.readValue(message, MarketPrice.class);
             log.info("Consumed price update: {}", price);
-            messagingTemplate.convertAndSend("/topic/prices", price);
-        } catch (Exception e) {
+            broadcastService.broadcastPrice(price);
+        } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
             log.error("Error parsing market price JSON: {}", e.getMessage());
         }
     }

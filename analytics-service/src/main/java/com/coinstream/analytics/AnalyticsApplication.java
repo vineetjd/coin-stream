@@ -14,9 +14,7 @@ public class AnalyticsApplication {
     }
 
     @org.springframework.context.annotation.Bean
-    public com.fasterxml.jackson.databind.ObjectMapper objectMapper() {
-        com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
-        mapper.registerModule(new com.fasterxml.jackson.datatype.jsr310.JavaTimeModule());
-        return mapper;
+    public tools.jackson.databind.json.JsonMapper objectMapper() {
+        return tools.jackson.databind.json.JsonMapper.builder().build();
     }
 }

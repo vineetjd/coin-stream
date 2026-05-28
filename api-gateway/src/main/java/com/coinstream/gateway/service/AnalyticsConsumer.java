@@ -1,28 +1,32 @@
 package com.coinstream.gateway.service;
 
-import com.coinstream.analytics.model.PriceAnalytics;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import com.coinstream.gateway.model.PriceAnalytics;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.lang.NonNull;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
+
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
-@Slf4j
 public class AnalyticsConsumer {
 
-    private final SimpMessagingTemplate messagingTemplate;
+    private static final Logger log = LoggerFactory.getLogger(AnalyticsConsumer.class);
+
+    private final WebSocketBroadcastService broadcastService;
     private final com.fasterxml.jackson.databind.ObjectMapper objectMapper;
 
-    @KafkaListener(topics = "market.analytics", groupId = "gateway-analytics-group")
-    public void consume(@NonNull String message) {
+    public AnalyticsConsumer(WebSocketBroadcastService broadcastService, com.fasterxml.jackson.databind.ObjectMapper objectMapper) {
+        this.broadcastService = broadcastService;
+        this.objectMapper = objectMapper;
+    }
+
+    @KafkaListener(topics = "${kafka.topic.analytics}", groupId = "gateway-analytics-group")
+    public void consume(String message) {
         try {
             PriceAnalytics analytics = objectMapper.readValue(message, PriceAnalytics.class);
             log.info("Consumed analytics update: {}", analytics);
-            messagingTemplate.convertAndSend("/topic/analytics", analytics);
-        } catch (Exception e) {
+            broadcastService.broadcastAnalytics(analytics);
+        } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
             log.error("Error parsing analytics JSON: {}", e.getMessage());
         }
     }
