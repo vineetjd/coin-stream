@@ -18,15 +18,14 @@ function App() {
   const [selectedCoin, setSelectedCoin] = useState('BTC');
 
   useEffect(() => {
-    // websocket
-    const wsUrl = import.meta.env.VITE_WS_URL + '/ws-market';
-    const socket = new SockJS(wsUrl);
+    // Same-origin endpoint: nginx proxies /ws-market to the gateway, so a
+    // fresh clone works with zero configuration (no VITE_WS_URL to set).
+    const socket = new SockJS('/ws-market');
 
     const client = new Client({
       webSocketFactory: () => socket,
       onConnect: () => {
         setConnected(true);
-        console.log('Connected to WS at ' + wsUrl);
 
         // raw prices
         client.subscribe('/topic/prices', (message) => {
@@ -36,7 +35,6 @@ function App() {
 
         // candles + sma
         client.subscribe('/topic/analytics', (message) => {
-          console.log('WS: Got Analytics Message', message.body.substring(0, 50));
           const data = JSON.parse(message.body);
           handleAnalyticsBuf(data);
         });
@@ -115,6 +113,15 @@ function App() {
   return (
     <div className="min-h-screen p-8 bg-slate-950 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-slate-950">
       <Header connected={connected} />
+
+      {!connected && (
+        <div
+          role="status"
+          className="max-w-7xl mx-auto mb-6 rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-300"
+        >
+          Connecting to the live feed… retrying automatically.
+        </div>
+      )}
 
       <main className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-4 gap-6">
         <CoinTicker
