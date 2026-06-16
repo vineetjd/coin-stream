@@ -32,6 +32,15 @@ const PriceChart = ({ data, selectedCoin }) => {
             </div>
 
             <div className="flex justify-center overflow-x-auto">
+                {(!data || data.length === 0) ? (
+                    <div className="w-[800px] h-[400px] flex flex-col items-center justify-center gap-3 text-center" role="status">
+                        <div className="h-2 w-48 rounded bg-slate-700 animate-pulse" />
+                        <p className="text-slate-300 text-sm">Waiting for the first 1-minute candle to close…</p>
+                        <p className="text-slate-500 text-xs max-w-xs">
+                            Live ticks are streaming now; the first candle appears once a full 1-minute window completes.
+                        </p>
+                    </div>
+                ) : (
                 <ComposedChart width={800} height={400} data={data}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
                     <XAxis
@@ -86,6 +95,7 @@ const PriceChart = ({ data, selectedCoin }) => {
                         )
                     })}
                 </ComposedChart>
+                )}
             </div>
         </div>
     );

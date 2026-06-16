@@ -2,9 +2,12 @@ import React from 'react';
 import { DollarSign, TrendingUp, TrendingDown } from 'lucide-react';
 
 const CoinCard = ({ symbol, data, selected, onClick }) => (
-    <div
+    <button
+        type="button"
         onClick={onClick}
-        className={`card cursor-pointer transition-all duration-300 hover:scale-105 ${selected ? 'ring-2 ring-emerald-500 bg-slate-700' : ''}`}
+        aria-pressed={selected}
+        aria-label={`Select ${symbol}, current price $${data.current.toFixed(2)}`}
+        className={`card w-full text-left cursor-pointer transition-all duration-300 hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 ${selected ? 'ring-2 ring-emerald-500 bg-slate-700' : ''}`}
     >
         <div className="flex justify-between items-center mb-2">
             <div className="flex items-center gap-2">
@@ -23,7 +26,7 @@ const CoinCard = ({ symbol, data, selected, onClick }) => (
         <div className="text-2xl font-bold font-mono">
             ${data.current.toFixed(2)}
         </div>
-    </div>
+    </button>
 );
 
 const CoinTicker = ({ prices, selectedCoin, onSelectCoin }) => {
