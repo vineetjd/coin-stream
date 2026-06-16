@@ -2,8 +2,8 @@ package com.coinstream.ingestion.adapter.in;
 
 import com.coinstream.ingestion.model.MarketPrice;
 import com.coinstream.ingestion.service.MarketPriceService;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
@@ -27,13 +27,13 @@ public class BinanceWebSocketAdapter {
     private static final Logger log = LoggerFactory.getLogger(BinanceWebSocketAdapter.class);
 
     private final MarketPriceService marketPriceService;
-    private final ObjectMapper objectMapper;
+    private final JsonMapper objectMapper;
     private final OkHttpClient client;
     private final ScheduledExecutorService scheduler;
     
     private WebSocket webSocket;
 
-    public BinanceWebSocketAdapter(MarketPriceService marketPriceService, ObjectMapper objectMapper, OkHttpClient client, ScheduledExecutorService scheduler) {
+    public BinanceWebSocketAdapter(MarketPriceService marketPriceService, JsonMapper objectMapper, OkHttpClient client, ScheduledExecutorService scheduler) {
         this.marketPriceService = marketPriceService;
         this.objectMapper = objectMapper;
         this.client = client;
@@ -69,8 +69,8 @@ public class BinanceWebSocketAdapter {
                     JsonNode data = node.get("data");
 
                     if (data != null) {
-                        String symbol = data.get("s").asText().replace("USDT", ""); // BTCUSDT -> BTC
-                        BigDecimal price = new BigDecimal(data.get("p").asText());
+                        String symbol = data.get("s").asString().replace("USDT", ""); // BTCUSDT -> BTC
+                        BigDecimal price = new BigDecimal(data.get("p").asString());
                         long timestamp = data.get("T").asLong();
 
                         MarketPrice marketPrice = new MarketPrice(
@@ -81,7 +81,7 @@ public class BinanceWebSocketAdapter {
 
                         marketPriceService.processPrice(marketPrice);
                     }
-                } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+                } catch (Exception e) {
                     log.error("Error parsing message: {}", e.getMessage());
                 }
             }

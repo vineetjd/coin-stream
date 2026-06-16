@@ -13,9 +13,9 @@ public class MarketDataConsumer {
     private static final Logger log = LoggerFactory.getLogger(MarketDataConsumer.class);
 
     private final WebSocketBroadcastService broadcastService;
-    private final com.fasterxml.jackson.databind.ObjectMapper objectMapper;
+    private final tools.jackson.databind.json.JsonMapper objectMapper;
 
-    public MarketDataConsumer(WebSocketBroadcastService broadcastService, com.fasterxml.jackson.databind.ObjectMapper objectMapper) {
+    public MarketDataConsumer(WebSocketBroadcastService broadcastService, tools.jackson.databind.json.JsonMapper objectMapper) {
         this.broadcastService = broadcastService;
         this.objectMapper = objectMapper;
     }
@@ -26,7 +26,7 @@ public class MarketDataConsumer {
             MarketPrice price = objectMapper.readValue(message, MarketPrice.class);
             log.info("Consumed price update: {}", price);
             broadcastService.broadcastPrice(price);
-        } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+        } catch (Exception e) {
             log.error("Error parsing market price JSON: {}", e.getMessage());
         }
     }

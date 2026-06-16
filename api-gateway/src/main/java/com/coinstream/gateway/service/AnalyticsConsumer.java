@@ -13,9 +13,9 @@ public class AnalyticsConsumer {
     private static final Logger log = LoggerFactory.getLogger(AnalyticsConsumer.class);
 
     private final WebSocketBroadcastService broadcastService;
-    private final com.fasterxml.jackson.databind.ObjectMapper objectMapper;
+    private final tools.jackson.databind.json.JsonMapper objectMapper;
 
-    public AnalyticsConsumer(WebSocketBroadcastService broadcastService, com.fasterxml.jackson.databind.ObjectMapper objectMapper) {
+    public AnalyticsConsumer(WebSocketBroadcastService broadcastService, tools.jackson.databind.json.JsonMapper objectMapper) {
         this.broadcastService = broadcastService;
         this.objectMapper = objectMapper;
     }
@@ -26,7 +26,7 @@ public class AnalyticsConsumer {
             PriceAnalytics analytics = objectMapper.readValue(message, PriceAnalytics.class);
             log.info("Consumed analytics update: {}", analytics);
             broadcastService.broadcastAnalytics(analytics);
-        } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+        } catch (Exception e) {
             log.error("Error parsing analytics JSON: {}", e.getMessage());
         }
     }

@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   broker:
     image: confluentinc/cp-kafka:7.5.0
@@ -23,6 +22,12 @@ services:
       KAFKA_HEAP_OPTS: "-Xmx400m -Xms400m"
       # Generate a Cluster ID on startup (required for KRaft)
       CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-broker-api-versions --bootstrap-server broker:29092 > /dev/null 2>&1"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 20s
 
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
@@ -39,7 +44,9 @@ services:
     build: ./ingestion-service
     container_name: ingestion-service
     depends_on:
-      - broker
+      broker:
+        condition: service_healthy
+    restart: on-failure
     environment:
       SPRING_KAFKA_BOOTSTRAP_SERVERS: broker:29092
       SERVER_PORT: 8095
@@ -49,7 +56,9 @@ services:
     build: ./analytics-service
     container_name: analytics-service
     depends_on:
-      - broker
+      broker:
+        condition: service_healthy
+    restart: on-failure
     environment:
       SPRING_KAFKA_BOOTSTRAP_SERVERS: broker:29092
       SERVER_PORT: 8085
@@ -59,7 +68,9 @@ services:
     build: ./api-gateway
     container_name: api-gateway
     depends_on:
-      - broker
+      broker:
+        condition: service_healthy
+    restart: on-failure
     ports:
       - "8082:8082"
     environment:
