@@ -82,7 +82,7 @@ public class BinanceWebSocketAdapter {
                         marketPriceService.processPrice(marketPrice);
                     }
                 } catch (Exception e) {
-                    log.error("Error parsing message: {}", e.getMessage());
+                    log.error("Error parsing Binance message", e);
                 }
             }
 
@@ -94,7 +94,7 @@ public class BinanceWebSocketAdapter {
 
             @Override
             public void onFailure(WebSocket webSocket, Throwable t, Response response) {
-                log.error("Binance WebSocket failure: {}. Reconnecting in {}s...", t.getMessage(), reconnectDelaySec);
+                log.error("Binance WebSocket failure. Reconnecting in {}s...", reconnectDelaySec, t);
                 scheduleReconnect();
             }
         });

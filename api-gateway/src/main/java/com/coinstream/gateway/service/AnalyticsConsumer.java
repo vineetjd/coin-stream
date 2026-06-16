@@ -24,10 +24,10 @@ public class AnalyticsConsumer {
     public void consume(String message) {
         try {
             PriceAnalytics analytics = objectMapper.readValue(message, PriceAnalytics.class);
-            log.info("Consumed analytics update: {}", analytics);
+            log.debug("Consumed analytics update: {}", analytics);
             broadcastService.broadcastAnalytics(analytics);
         } catch (Exception e) {
-            log.error("Error parsing analytics JSON: {}", e.getMessage());
+            log.error("Error parsing analytics JSON", e);
         }
     }
 }

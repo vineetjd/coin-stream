@@ -25,7 +25,7 @@ public class MarketPriceProducer implements PricePublisherPort {
     @Override
 
     public void sendPrice(MarketPrice marketPrice) {
-        log.info("Sending price: {}", marketPrice);
+        log.debug("Sending price: {}", marketPrice);
         kafkaTemplate.send(topic, marketPrice.symbol(), marketPrice);
     }
 }

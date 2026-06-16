@@ -73,7 +73,7 @@ public class AnalyticsTopology {
                                                         agg.min(),
                                                         agg.close()
                                         );
-                                        log.info("Calculated Candle: {}", result);
+                                        log.debug("Calculated Candle: {}", result);
                                         return new KeyValue<>(windowedKey.key(), result);
                                 })
                                 // produce market.analytics

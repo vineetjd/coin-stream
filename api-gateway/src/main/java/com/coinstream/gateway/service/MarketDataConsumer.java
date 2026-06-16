@@ -24,10 +24,10 @@ public class MarketDataConsumer {
     public void consume(String message) {
         try {
             MarketPrice price = objectMapper.readValue(message, MarketPrice.class);
-            log.info("Consumed price update: {}", price);
+            log.debug("Consumed price update: {}", price);
             broadcastService.broadcastPrice(price);
         } catch (Exception e) {
-            log.error("Error parsing market price JSON: {}", e.getMessage());
+            log.error("Error parsing market price JSON", e);
         }
     }
 }
