@@ -9,7 +9,7 @@ public record PriceAggregate(
     double close
 ) {
     public PriceAggregate() {
-        this(0.0, 0L, Double.MAX_VALUE, Double.MIN_VALUE, 0.0, 0.0);
+        this(0.0, 0L, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY, 0.0, 0.0);
     }
 
     public PriceAggregate add(double price) {
