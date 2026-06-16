@@ -21,8 +21,15 @@
 # Docker
 .docker/
 
-# Logs
+# Logs & JVM crash dumps
 *.log
 **/logs/
+hs_err_pid*.log
+replay_pid*.log
 
-docs
+# Build/IDE scratch output (never commit raw tool output)
+**/compile_error.txt
+**/test_res.txt
+
+# Personal tooling reference (not part of the project)
+docs/java-spring-boot/
