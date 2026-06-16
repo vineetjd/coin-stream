@@ -33,3 +33,4 @@ replay_pid*.log
 
 # Personal tooling reference (not part of the project)
 docs/java-spring-boot/
+docs/notion/
