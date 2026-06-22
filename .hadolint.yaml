@@ -1,0 +1,6 @@
+# Rules deferred to Tier 2.E (Dockerfile hardening): non-root USER, HEALTHCHECK,
+# and pinned base/package versions. Until then hadolint runs informational in CI.
+ignored:
+  - DL3002  # last USER should not be root (fixed in 2.E)
+  - DL3008  # pin versions in apt-get (no apt usage here)
+  - DL3018  # pin versions in apk add

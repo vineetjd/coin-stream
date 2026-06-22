@@ -68,7 +68,7 @@ const PriceChart = ({ data, selectedCoin }) => {
                         isAnimationActive={false}
                     />
 
-                    {data.map((d, i) => {
+                    {data.map((d) => {
                         const isUp = d.close >= d.open;
                         const color = isUp ? '#10b981' : '#ef4444';
                         const w = 20000; // 20s width

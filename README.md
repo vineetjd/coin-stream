@@ -1,5 +1,6 @@
 # CoinStream: Real-Time Financial Analytics Platform
 
+[![CI](https://github.com/vineetjd/coin-stream/actions/workflows/ci.yml/badge.svg)](https://github.com/vineetjd/coin-stream/actions/workflows/ci.yml)
 ![Java](https://img.shields.io/badge/Java-25-orange)
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-4.0.6-green)
 ![Kafka](https://img.shields.io/badge/Apache_Kafka-3.7-black)
