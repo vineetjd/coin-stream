@@ -86,6 +86,7 @@ One narrative: the data layer (depth) becomes the load generator (scale). Each i
 ### Backlog finding (discovered during 2.A.1 fault injection)
 
 - **Decouple ingestion from producing (thread-isolation + backpressure).** Ingestion currently produces to Kafka *synchronously on the single OkHttp WebSocket reader thread*. A prolonged broker outage fills the producer buffer; `send()` then blocks on the reader thread (`max.block.ms`), starving frame reads. Because it surfaces as repeated send timeouts (not a clean socket failure), the WS auto-reconnect never fires and ingestion silently stalls until restart. Fix: produce off a bounded queue on a dedicated thread/pool with an explicit drop-or-conflate policy when the buffer is full. Pairs with T3.4 conflation. Verify by repeating the `docker compose pause broker` (~145s) chaos test and asserting ingestion self-recovers without a restart.
+- **Distributed tracing (deferred from 2.B).** Tracing was wired (Boot 4 `spring-boot-micrometer-tracing-brave` + `spring-boot-starter-zipkin` + a Zipkin container) but spans never exported — even a plain HTTP server span produced zero traces in Zipkin. Removed rather than ship non-working theater (metrics + health shipped instead). Revisit: confirm the tracing autoconfig activates (`/actuator/beans` for a `Tracer` bean), verify an HTTP server span reaches Zipkin first, then add Kafka producer/consumer propagation.
 
 ---
 

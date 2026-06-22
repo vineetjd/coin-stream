@@ -72,11 +72,7 @@ public class StreamsDlqConfig {
         props.put("spring.json.use.type.headers", false);
 
         // Poison-pill immunity: route undeserializable records to <topic>.dlt and continue.
-        // Set BOTH the current and the deprecated key — in Kafka 4.1 the deprecated
-        // key still carries a LogAndFail default that otherwise wins resolution.
         props.put(StreamsConfig.DESERIALIZATION_EXCEPTION_HANDLER_CLASS_CONFIG,
-                RecoveringDeserializationExceptionHandler.class);
-        props.put(StreamsConfig.DEFAULT_DESERIALIZATION_EXCEPTION_HANDLER_CLASS_CONFIG,
                 RecoveringDeserializationExceptionHandler.class);
         props.put(RecoveringDeserializationExceptionHandler.KSTREAM_DESERIALIZATION_RECOVERER,
                 streamsDlqRecoverer);
