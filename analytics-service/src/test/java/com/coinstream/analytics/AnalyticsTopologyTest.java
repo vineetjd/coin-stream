@@ -1,22 +1,22 @@
 package com.coinstream.analytics;
 
-import com.coinstream.analytics.model.MarketPrice;
+import static org.assertj.core.api.Assertions.assertThat;
 
+import com.coinstream.analytics.config.AnalyticsProperties;
+import com.coinstream.analytics.model.MarketPrice;
 import com.coinstream.analytics.model.PriceAnalytics;
 import com.coinstream.analytics.stream.AnalyticsTopology;
-import tools.jackson.databind.json.JsonMapper;
+import java.math.BigDecimal;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Properties;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.kafka.support.serializer.JacksonJsonSerde;
-
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.util.Properties;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import tools.jackson.databind.json.JsonMapper;
 
 public class AnalyticsTopologyTest {
 
@@ -29,11 +29,11 @@ public class AnalyticsTopologyTest {
     void setup() {
         objectMapper = JsonMapper.builder().build();
 
-        AnalyticsTopology topologyProvider = new AnalyticsTopology();
-        org.springframework.test.util.ReflectionTestUtils.setField(topologyProvider, "pricesTopic", "market.prices");
-        org.springframework.test.util.ReflectionTestUtils.setField(topologyProvider, "analyticsTopic", "market.analytics");
-        org.springframework.test.util.ReflectionTestUtils.setField(topologyProvider, "windowDurationSec", 60L);
-        org.springframework.test.util.ReflectionTestUtils.setField(topologyProvider, "windowGraceSec", 5L);
+        AnalyticsProperties properties = new AnalyticsProperties(
+                "market.prices",
+                "market.analytics",
+                new AnalyticsProperties.Window(Duration.ofSeconds(60), Duration.ofSeconds(5)));
+        AnalyticsTopology topologyProvider = new AnalyticsTopology(properties);
 
         StreamsBuilder builder = new StreamsBuilder();
         topologyProvider.buildAnalyticsTopology(builder, objectMapper);

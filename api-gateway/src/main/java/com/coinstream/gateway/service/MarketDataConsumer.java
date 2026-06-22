@@ -4,7 +4,6 @@ import com.coinstream.gateway.model.MarketPrice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
-
 import org.springframework.stereotype.Service;
 
 @Service
@@ -22,12 +21,10 @@ public class MarketDataConsumer {
 
     @KafkaListener(topics = "${kafka.topic.prices}", groupId = "gateway-group")
     public void consume(String message) {
-        try {
-            MarketPrice price = objectMapper.readValue(message, MarketPrice.class);
-            log.debug("Consumed price update: {}", price);
-            broadcastService.broadcastPrice(price);
-        } catch (Exception e) {
-            log.error("Error parsing market price JSON", e);
-        }
+        // No try/catch: let a parse failure propagate so the container's
+        // DefaultErrorHandler retries it and routes it to market.prices.dlt.
+        MarketPrice price = objectMapper.readValue(message, MarketPrice.class);
+        log.debug("Consumed price update: {}", price);
+        broadcastService.broadcastPrice(price);
     }
 }

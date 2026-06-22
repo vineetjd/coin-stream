@@ -1,42 +1,32 @@
 package com.coinstream.analytics.stream;
 
+import com.coinstream.analytics.config.AnalyticsProperties;
 import com.coinstream.analytics.model.MarketPrice;
 import com.coinstream.analytics.model.PriceAggregate;
 import com.coinstream.analytics.model.PriceAnalytics;
-import tools.jackson.databind.json.JsonMapper;
-
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.kstream.*;
-import org.springframework.beans.factory.annotation.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.support.serializer.JacksonJsonDeserializer;
 import org.springframework.kafka.support.serializer.JacksonJsonSerde;
 import org.springframework.kafka.support.serializer.JacksonJsonSerializer;
-
-import java.time.Duration;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import tools.jackson.databind.json.JsonMapper;
 
 @Configuration
 public class AnalyticsTopology {
 
         private static final Logger log = LoggerFactory.getLogger(AnalyticsTopology.class);
 
-        @Value("${kafka.topic.prices}")
-        private String pricesTopic;
+        private final AnalyticsProperties properties;
 
-        @Value("${kafka.topic.analytics}")
-        private String analyticsTopic;
-
-        @Value("${analytics.window.duration.seconds}")
-        private long windowDurationSec;
-
-        @Value("${analytics.window.grace.seconds}")
-        private long windowGraceSec;
+        public AnalyticsTopology(AnalyticsProperties properties) {
+                this.properties = properties;
+        }
 
         @Bean
         public KStream<String, MarketPrice> buildAnalyticsTopology(StreamsBuilder builder, JsonMapper objectMapper) {
@@ -47,14 +37,14 @@ public class AnalyticsTopology {
                 JacksonJsonSerde<PriceAggregate> aggregateSerde = createSerde(PriceAggregate.class, objectMapper);
 
                 // consume market.prices
-                KStream<String, MarketPrice> stream = builder.stream(pricesTopic,
+                KStream<String, MarketPrice> stream = builder.stream(properties.pricesTopic(),
                                 Consumed.with(Serdes.String(), priceSerde));
 
                 // aggregation
                 stream
                                 .map((key, value) -> new KeyValue<>(value.symbol(), value.price().doubleValue()))
                                 .groupByKey(Grouped.with(Serdes.String(), Serdes.Double()))
-                                .windowedBy(TimeWindows.ofSizeAndGrace(Duration.ofSeconds(windowDurationSec), Duration.ofSeconds(windowGraceSec)))
+                                .windowedBy(TimeWindows.ofSizeAndGrace(properties.window().duration(), properties.window().grace()))
                                 .aggregate(
                                                 PriceAggregate::new,
                                                 (key, price, agg) -> agg.add(price),
@@ -77,7 +67,7 @@ public class AnalyticsTopology {
                                         return new KeyValue<>(windowedKey.key(), result);
                                 })
                                 // produce market.analytics
-                                .to(analyticsTopic, Produced.with(Serdes.String(), analyticsSerde));
+                                .to(properties.analyticsTopic(), Produced.with(Serdes.String(), analyticsSerde));
 
                 return stream;
         }

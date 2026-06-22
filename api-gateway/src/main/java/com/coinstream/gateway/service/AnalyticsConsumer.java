@@ -4,7 +4,6 @@ import com.coinstream.gateway.model.PriceAnalytics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
-
 import org.springframework.stereotype.Service;
 
 @Service
@@ -22,12 +21,10 @@ public class AnalyticsConsumer {
 
     @KafkaListener(topics = "${kafka.topic.analytics}", groupId = "gateway-analytics-group")
     public void consume(String message) {
-        try {
-            PriceAnalytics analytics = objectMapper.readValue(message, PriceAnalytics.class);
-            log.debug("Consumed analytics update: {}", analytics);
-            broadcastService.broadcastAnalytics(analytics);
-        } catch (Exception e) {
-            log.error("Error parsing analytics JSON", e);
-        }
+        // No try/catch: let a parse failure propagate so the container's
+        // DefaultErrorHandler retries it and routes it to market.analytics.dlt.
+        PriceAnalytics analytics = objectMapper.readValue(message, PriceAnalytics.class);
+        log.debug("Consumed analytics update: {}", analytics);
+        broadcastService.broadcastAnalytics(analytics);
     }
 }

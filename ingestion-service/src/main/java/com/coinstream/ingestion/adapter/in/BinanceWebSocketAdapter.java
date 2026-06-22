@@ -1,25 +1,24 @@
 package com.coinstream.ingestion.adapter.in;
 
+import com.coinstream.ingestion.config.IngestionProperties;
 import com.coinstream.ingestion.model.MarketPrice;
 import com.coinstream.ingestion.service.MarketPriceService;
-import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.json.JsonMapper;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
-import org.springframework.beans.factory.annotation.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 @Component
 public class BinanceWebSocketAdapter {
@@ -30,21 +29,21 @@ public class BinanceWebSocketAdapter {
     private final JsonMapper objectMapper;
     private final OkHttpClient client;
     private final ScheduledExecutorService scheduler;
-    
+    private final String binanceWsUrl;
+    private final long reconnectDelaySec;
+
     private WebSocket webSocket;
 
-    public BinanceWebSocketAdapter(MarketPriceService marketPriceService, JsonMapper objectMapper, OkHttpClient client, ScheduledExecutorService scheduler) {
+    public BinanceWebSocketAdapter(MarketPriceService marketPriceService, JsonMapper objectMapper,
+                                   OkHttpClient client, ScheduledExecutorService scheduler,
+                                   IngestionProperties properties) {
         this.marketPriceService = marketPriceService;
         this.objectMapper = objectMapper;
         this.client = client;
         this.scheduler = scheduler;
+        this.binanceWsUrl = properties.binance().url();
+        this.reconnectDelaySec = properties.binance().reconnectDelay().toSeconds();
     }
-
-    @Value("${binance.ws.url}")
-    private String binanceWsUrl;
-
-    @Value("${binance.ws.reconnect.delay.seconds}")
-    private long reconnectDelaySec;
 
     @PostConstruct
     public void connect() {

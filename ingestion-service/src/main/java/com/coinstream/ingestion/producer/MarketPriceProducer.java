@@ -1,12 +1,12 @@
 package com.coinstream.ingestion.producer;
 
+import com.coinstream.ingestion.config.IngestionProperties;
 import com.coinstream.ingestion.model.MarketPrice;
 import com.coinstream.ingestion.port.out.PricePublisherPort;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -17,12 +17,13 @@ public class MarketPriceProducer implements PricePublisherPort {
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
     private final Counter sendFailures;
+    private final String topic;
 
-    @Value("${kafka.topic.prices}")
-    private String topic;
-
-    public MarketPriceProducer(KafkaTemplate<String, Object> kafkaTemplate, MeterRegistry meterRegistry) {
+    public MarketPriceProducer(KafkaTemplate<String, Object> kafkaTemplate,
+                               MeterRegistry meterRegistry,
+                               IngestionProperties properties) {
         this.kafkaTemplate = kafkaTemplate;
+        this.topic = properties.pricesTopic();
         this.sendFailures = Counter.builder("coinstream.producer.send.failures")
                 .description("Market price records that Kafka never acknowledged")
                 .register(meterRegistry);
