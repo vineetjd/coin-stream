@@ -77,7 +77,7 @@ jobs:
 
       # Informational for now; becomes a hard gate in Tier 2.E (non-root, HEALTHCHECK, etc.)
       - name: Hadolint
-        uses: hadolint/hadolint-action@v3.1.0
+        uses: hadolint/hadolint-action@v3.3.0
         continue-on-error: true
         with:
           dockerfile: ${{ matrix.dir }}/Dockerfile
